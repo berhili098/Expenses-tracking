@@ -11,7 +11,8 @@ import SwiftData
 struct ContentView: View {
   @State private var isShowingItemSheet = false
     @State private var isShowingItemSheetUpdate = false
-    @Query(filter: #Predicate<Expense>{$0.value > 1000}, sort:\Expense.date , animation: .bouncy)  var expenses : [Expense]
+//    @Query(filter: #Predicate<Expense>( $0.value > 1000), sort:\Expense.date , animation: .bouncy) var  expenses : [Expense]
+    @Query(sort:\Expense.date)  var expenses : [Expense]
     @Environment(\.modelContext) var context
     @State private var expenseToEdit : Expense?
     
