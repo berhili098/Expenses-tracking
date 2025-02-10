@@ -10,13 +10,22 @@ import SwiftData
 
 @main
 struct ExpensesTrackingApp: App {
-  
+   
+    var container: ModelContainer
+    
+    init() {
+        let schema = Schema([Expense.self])
+        do {
+            container = try ModelContainer(for: schema, configurations: [])
+        } catch {
+            fatalError("Failed to initialize ModelContainer: \(error)")
+        }
+    }
 
     var body: some Scene {
         WindowGroup {
             ContentView()
+                .modelContainer(container)
         }
-        .modelContainer(for:[Expense.self])
-        
     }
 }

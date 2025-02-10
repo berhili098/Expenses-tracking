@@ -9,58 +9,59 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    @Environment(\.modelContext) private var modelContext
-    @Query private var items: [Item]
+  @State private var isShowingItemSheet = false
+    @Query(sort:\Expense.date)  var expenses : [Expense]
+    @Environment(\.modelContext) var context
+    
+    func addExpenseSheet (){
+      
+    
+    }
 
     var body: some View {
-        NavigationSplitView {
+        NavigationStack{
             List {
-                ForEach(items) { item in
-                    NavigationLink {
-                        Text("Item at \(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))")
-                    } label: {
-                        Text(item.timestamp, format: Date.FormatStyle(date: .numeric, time: .standard))
+                ForEach(expenses, id: \.id) { expense in
+                    ExpenseCell(expense: expense)
+                }
+                .onDelete { indexSet in
+                    for index in indexSet {
+                        let expense = expenses[index]
+                        context.delete(expense)
+                        
                     }
                 }
-                .onDelete(perform: deleteItems)
+            }.navigationTitle("Expenses")
+            .navigationBarTitleDisplayMode(.large)
+            .sheet(isPresented: $isShowingItemSheet){
+                AddExpenseSheetView()
             }
-#if os(macOS)
-            .navigationSplitViewColumnWidth(min: 180, ideal: 200)
-#endif
-            .toolbar {
-#if os(iOS)
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    EditButton()
-                }
-#endif
-                ToolbarItem {
-                    Button(action: addItem) {
-                        Label("Add Item", systemImage: "plus")
+            .toolbar{
+                if !expenses.isEmpty {
+                    Button("Add Expense", systemImage: "plus"){
+                        isShowingItemSheet = true
                     }
                 }
-            }
-        } detail: {
-            Text("Select an item")
-        }
-    }
-
-    private func addItem() {
-        withAnimation {
-            let newItem = Item(timestamp: Date())
-            modelContext.insert(newItem)
-        }
-    }
-
-    private func deleteItems(offsets: IndexSet) {
-        withAnimation {
-            for index in offsets {
-                modelContext.delete(items[index])
+            }.overlay{
+                if expenses.isEmpty {
+                    ContentUnavailableView(label: {
+                        Label("No expenses", systemImage: "list.bullet.rectangle.portrait")
+                    }, description:{
+                        Text("You don't have any expenses yet")
+                    }, actions: {
+                        Button("Add Expense"){
+                            isShowingItemSheet = true
+                        }
+                    }).offset(y: -60)
+                }
             }
         }
+        
     }
+
+   
 }
 
 #Preview {
     ContentView()
-        .modelContainer(for: Item.self, inMemory: true)
 }
