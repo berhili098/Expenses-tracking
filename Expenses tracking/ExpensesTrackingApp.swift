@@ -24,7 +24,7 @@ struct ExpensesTrackingApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView() 
                 .modelContainer(container)
         }
     }
